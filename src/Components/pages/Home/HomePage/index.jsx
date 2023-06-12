@@ -1,4 +1,3 @@
-import { Card } from "../../../Card";
 import { useState, useEffect } from "react";
 import { CardContainer } from "../../../../containers/CardContainers";
 import Container from "react-bootstrap/Container";
@@ -7,14 +6,26 @@ import Col from "react-bootstrap/Col";
 import { ModalSavePin } from "../../../../containers/ModalSavePin";
 import { ModalCreateFolder } from "../../../../containers/ModalCreateFolder";
 import { Notification } from "../../../Notification";
-import { HeaderPartials } from "../../../../Partials/HeaderPartials";
 import { UseAppContext } from "../../../../store/AppContext";
 import { saveFoldersSuccessType } from "../../../../store/types";
+import { fetchPinsAction } from "../../../../store/actions";
 
 export const HomePage = () => {
   const [open, setOpen] = useState(true);
   const { state, dispatch } = UseAppContext();
   const [showFeedback, setShowFeedback] = useState(false);
+
+  const pinNormalized = state.pins.map((pin) => {
+    return {
+      ...pin,
+      total: state.folders.filter((folder) => {
+        return folder.pins.includes(pin.id);
+      }).length,
+    };
+  });
+  useEffect(() => {
+    fetchPinsAction(dispatch);
+  }, []);
 
   useEffect(() => {
     if (state.type === saveFoldersSuccessType) {
@@ -35,14 +46,11 @@ export const HomePage = () => {
       )}
       <Container fluid>
         <Row>
-          <Col xs={12} md={2}>
-            <CardContainer
-              id="123"
-              title="matematica"
-              image="https://img.freepik.com/fotos-gratis/ceu_53876-47159.jpg?w=740&t=st=1684411605~exp=1684412205~hmac=55137b9de4e4a17c2db3675f20052925079e79d49984741c2c64b5329cef2127"
-              total={0}
-            />
-          </Col>
+          {pinNormalized.map((pin) => (
+            <Col key={pin.id} xs={12} md={2}>
+              <CardContainer {...pin} />
+            </Col>
+          ))}
         </Row>
       </Container>
     </div>

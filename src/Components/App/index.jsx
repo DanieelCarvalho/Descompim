@@ -9,6 +9,7 @@ const initialState = {
   mode: null,
   folders: [],
   type: null,
+  pins: [],
 };
 function App() {
   // const [count, setCount] = useState(0);
